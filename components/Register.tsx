@@ -1,0 +1,120 @@
+import React, { useState } from 'react';
+import { User } from '../types';
+import { LogoIcon } from './icons';
+
+interface RegisterProps {
+  onRegister: (newUser: User) => { success: boolean, message: string };
+  onNavigateToLogin: () => void;
+}
+
+const Register: React.FC<RegisterProps> = ({ onRegister, onNavigateToLogin }) => {
+  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [role, setRole] = useState<'admin' | 'operator'>('operator');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const handleRegister = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+
+    if (password !== confirmPassword) {
+      setError('Las contraseñas no coinciden.');
+      return;
+    }
+    if (password.length < 4) {
+      setError('La contraseña debe tener al menos 4 caracteres.');
+      return;
+    }
+
+    const newUser: User = {
+      name,
+      username,
+      password,
+      role,
+    };
+
+    const result = onRegister(newUser);
+    if (result.success) {
+      setSuccess(result.message);
+      setTimeout(() => {
+        onNavigateToLogin();
+      }, 2000);
+    } else {
+      setError(result.message);
+    }
+  };
+
+  const inputClasses = "w-full px-3 py-2 mt-1 border border-slate-300 rounded-md focus:ring-brand-primary focus:border-brand-primary bg-slate-50 focus:bg-white text-slate-900 transition-colors duration-200";
+
+  return (
+     <div className="min-h-screen lg:grid lg:grid-cols-2">
+      <div className="flex items-center justify-center min-h-screen bg-white px-4 py-12">
+        <div className="w-full max-w-sm">
+          <div className="flex justify-start mb-6">
+              <LogoIcon />
+          </div>
+          <h1 className="text-2xl font-bold text-slate-800">Crear Nueva Cuenta</h1>
+          <p className="mt-2 text-slate-600">Únete a la plataforma InvenTICS.</p>
+        
+          <form onSubmit={handleRegister} className="mt-8 space-y-4">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-slate-700">Nombre Completo</label>
+              <input id="name" type="text" required value={name} onChange={(e) => setName(e.target.value)} className={inputClasses} placeholder="Ej: María Rodriguez" />
+            </div>
+            <div>
+              <label htmlFor="username" className="block text-sm font-medium text-slate-700">Nombre de Usuario</label>
+              <input id="username" type="text" required value={username} onChange={(e) => setUsername(e.target.value)} className={inputClasses} placeholder="Ej: mrodriguez" />
+            </div>
+            <div>
+              <label htmlFor="role" className="block text-sm font-medium text-slate-700">Rol de Usuario</label>
+              <select id="role" value={role} onChange={(e) => setRole(e.target.value as 'admin' | 'operator')} className={inputClasses}>
+                  <option value="operator">Operador</option>
+                  <option value="admin">Administrador</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-slate-700">Contraseña</label>
+              <input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className={inputClasses} placeholder="Mínimo 4 caracteres" />
+            </div>
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-700">Confirmar Contraseña</label>
+              <input id="confirmPassword" type="password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className={inputClasses} />
+            </div>
+            {error && <p className="text-sm text-center text-red-600">{error}</p>}
+            {success && <p className="text-sm text-center text-green-600">{success}</p>}
+            
+            <div className="pt-2">
+              <button type="submit" className="w-full px-4 py-2 font-semibold text-white bg-brand-primary rounded-md hover:bg-brand-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-primary">
+                Crear Cuenta
+              </button>
+            </div>
+          </form>
+           <p className="mt-6 text-sm text-center text-slate-600">
+              ¿Ya tienes una cuenta?{' '}
+              <button onClick={onNavigateToLogin} className="font-medium text-brand-primary hover:underline">
+                  Inicia sesión aquí
+              </button>
+          </p>
+        </div>
+      </div>
+       <div className="hidden lg:block relative">
+        <img 
+          className="absolute inset-0 w-full h-full object-cover" 
+          src="https://images.unsplash.com/photo-1578575437130-5278ce68242d?q=80&w=2070&auto=format&fit=crop" 
+          alt="Almacén con inventario organizado" 
+        />
+        <div className="absolute inset-0 bg-brand-dark/60"></div>
+         <div className="absolute bottom-0 left-0 p-12 text-white">
+            <h2 className="text-4xl font-bold mt-4 leading-tight">Tu inventario, bajo control inteligente.</h2>
+            <p className="mt-4 text-lg text-slate-200 max-w-lg">La solución definitiva para optimizar tu inventario y potenciar tu logística con la ayuda de la IA.</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Register;
