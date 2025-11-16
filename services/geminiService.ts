@@ -1,26 +1,36 @@
 import { GoogleGenAI, Chat, Type } from "@google/genai";
 import { Product, Movement, AnalysisResult } from '../types';
 
+// Variable para almacenar la instancia del chat y evitar reinicializaciones innecesarias.
 let chat: Chat | null = null;
+// Almacena el estado de los productos con el que se inicializó el chat para detectar cambios.
 let currentProductsJSON: string = '';
 
+/**
+ * Obtiene o crea una instancia del chat con el modelo de IA.
+ * La instancia se reutiliza si los datos de los productos no han cambiado,
+ * para mantener el contexto y optimizar el rendimiento.
+ * @param {Product[]} products - El estado actual de los productos del inventario.
+ * @returns {Chat} La instancia del chat lista para ser usada.
+ */
 const getChatInstance = (products: Product[]): Chat => {
   const newProductsJSON = JSON.stringify(products);
-  // Re-create chat instance if products have changed, to provide fresh context.
+  // Si el chat ya existe y los productos no han cambiado, reutiliza la instancia existente.
   if (chat && currentProductsJSON === newProductsJSON) {
     return chat;
   }
 
   currentProductsJSON = newProductsJSON;
 
-  // FIX: Use named parameter for apiKey as per guidelines.
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
+  // Proporciona el estado actual del inventario como contexto al modelo.
   const inventoryContext = `
     Contexto del inventario actual de InvenTICS:
     ${JSON.stringify(products, null, 2)}
   `;
 
+  // Define las instrucciones del sistema para guiar el comportamiento del asistente de IA.
   const systemInstruction = `
     Eres un asistente virtual experto para el sistema de inventario "InvenTICS".
     Tu nombre es NutriBot. Eres profesional, claro y empático.
@@ -37,6 +47,7 @@ const getChatInstance = (products: Product[]): Chat => {
     ${inventoryContext}
   `;
 
+  // Crea una nueva sesión de chat con el modelo y la configuración especificada.
   chat = ai.chats.create({
     model: 'gemini-2.5-flash',
     config: {
@@ -47,6 +58,12 @@ const getChatInstance = (products: Product[]): Chat => {
   return chat;
 };
 
+/**
+ * Envía un mensaje del usuario al modelo de IA y devuelve la respuesta.
+ * @param {string} message - El mensaje del usuario.
+ * @param {Product[]} products - El estado actual de los productos para contextualizar la conversación.
+ * @returns {Promise<string>} La respuesta de texto del modelo de IA.
+ */
 export const sendMessageToGemini = async (message: string, products: Product[]): Promise<string> => {
   try {
     const chatInstance = getChatInstance(products);
@@ -58,10 +75,19 @@ export const sendMessageToGemini = async (message: string, products: Product[]):
   }
 };
 
+/**
+ * Solicita un análisis del inventario al modelo de IA.
+ * El modelo analiza los productos y movimientos para generar sugerencias
+ * sobre alta demanda y necesidad de reorden.
+ * @param {Product[]} products - La lista actual de productos.
+ * @param {Movement[]} movements - El historial reciente de movimientos.
+ * @returns {Promise<AnalysisResult>} Un objeto con las listas de sugerencias.
+ */
 export const getInventoryAnalysis = async (products: Product[], movements: Movement[]): Promise<AnalysisResult> => {
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
+    // Instrucción detallada para el modelo sobre cómo realizar el análisis y en qué formato responder.
     const systemInstruction = `
       Eres un analista de inventarios experto para el sistema 'InvenTICS'. Tu tarea es analizar los datos de productos y movimientos para identificar tendencias clave y ofrecer sugerencias accionables.
 
@@ -77,6 +103,7 @@ export const getInventoryAnalysis = async (products: Product[], movements: Movem
       Debes devolver un objeto JSON que se ajuste estrictamente al esquema proporcionado. Para cada sugerencia, proporciona el nombre exacto del producto y una razón CONCISA (máximo 15 palabras) que justifique tu elección, basada en los datos.
     `;
     
+    // Contenido que se envía al modelo, incluyendo los datos a analizar.
     const contents = `
       Datos de Inventario:
       Productos: ${JSON.stringify(products)}
@@ -85,13 +112,14 @@ export const getInventoryAnalysis = async (products: Product[], movements: Movem
       Analiza estos datos y genera las sugerencias.
     `;
 
+    // Llamada a la API de Gemini para generar el contenido.
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents,
       config: {
         systemInstruction,
-        responseMimeType: "application/json",
-        responseSchema: {
+        responseMimeType: "application/json", // Se espera una respuesta en formato JSON.
+        responseSchema: { // Define la estructura JSON esperada.
           type: Type.OBJECT,
           properties: {
             highDemand: {
@@ -121,8 +149,10 @@ export const getInventoryAnalysis = async (products: Product[], movements: Movem
 
     const jsonText = response.text.trim();
     return JSON.parse(jsonText);
-  } catch (error) {
+  } catch (error)
+  {
     console.error("Error getting inventory analysis from Gemini:", error);
+    // Lanza un error para ser manejado por el componente que llama.
     throw new Error("No se pudo obtener el análisis del inventario.");
   }
 };

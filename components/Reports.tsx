@@ -49,7 +49,7 @@ const Reports: React.FC<ReportsProps> = ({ products, movements }) => {
     doc.setFont('helvetica', 'normal');
     const summaryText = `
     - Número total de productos distintos: ${totalProducts}
-    - Cantidad total de unidades en stock: ${totalStock}
+    - Cantidad total en stock (suma de valores): ${totalStock}
     - Valor total del inventario (costo): ${totalCostValue.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}
     - Valor total del inventario (venta): ${totalPriceValue.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}
     `;
@@ -57,15 +57,16 @@ const Reports: React.FC<ReportsProps> = ({ products, movements }) => {
 
     autoTable(doc, {
       startY: 80,
-      head: [['Nombre', 'Código', 'Categoría', 'Stock', 'Costo', 'Precio', 'Caducidad']],
+      head: [['Nombre', 'Presentación', 'Código', 'Categoría', 'Stock', 'Costo', 'Precio', 'Caducidad']],
       body: products.map(p => [
         p.name,
+        p.presentation || '-',
         p.code,
         p.category,
-        p.quantity,
+        `${p.quantity} ${p.unit || 'unidades'}`,
         `$${p.cost.toFixed(2)}`,
         `$${p.price.toFixed(2)}`,
-        p.expiryDate
+        p.expiryDate || '-'
       ]),
       theme: 'grid',
       headStyles: { fillColor: [16, 185, 129] },

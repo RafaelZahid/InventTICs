@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { ChatMessage, Product } from '../types';
 import { sendMessageToGemini } from '../services/geminiService';
@@ -59,7 +58,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ products }) => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="fixed bottom-6 right-6 bg-brand-primary text-white w-16 h-16 rounded-full shadow-lg flex items-center justify-center hover:bg-brand-primary/90 transition-transform duration-300 transform hover:scale-110 z-50"
-        aria-label="Abrir chat de ayuda"
+        aria-label={isOpen ? "Cerrar chat de ayuda" : "Abrir chat de ayuda"}
         title="Habla con NutriBot, el asistente de IA"
       >
         {isOpen ? <CloseIcon className="w-8 h-8"/> : <ChatIcon className="w-8 h-8" />}
@@ -67,8 +66,9 @@ const Chatbot: React.FC<ChatbotProps> = ({ products }) => {
 
       {isOpen && (
         <div className="fixed bottom-24 right-6 w-96 h-[32rem] bg-white rounded-lg shadow-2xl flex flex-col z-50 transition-opacity duration-300 animate-fade-in-up">
-          <header className="bg-brand-dark text-white p-4 rounded-t-lg flex justify-between items-center">
-            <h3 className="font-bold">Asistente NutriBot</h3>
+          <header className="bg-brand-dark text-white p-4 rounded-t-lg">
+            <h3 className="font-bold text-lg">Asistente NutriBot</h3>
+            <p className="text-xs text-slate-300">Responde preguntas sobre el inventario actual.</p>
           </header>
 
           <div className="flex-grow p-4 overflow-y-auto bg-slate-50">
@@ -94,7 +94,8 @@ const Chatbot: React.FC<ChatbotProps> = ({ products }) => {
           </div>
 
           <div className="p-2 border-t bg-slate-50">
-            <div className="flex space-x-2 mb-2">
+             <p className="text-xs text-slate-500 mb-2 px-2">Sugerencias:</p>
+            <div className="flex space-x-2 px-2">
                 {suggestionButtons.map(text => (
                     <button 
                         key={text}
@@ -118,7 +119,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ products }) => {
                   className="flex-grow border rounded-l-md px-3 py-2 text-sm focus:ring-2 focus:ring-brand-primary focus:outline-none"
                   disabled={isLoading}
                 />
-                <button type="submit" className="bg-brand-primary text-white px-4 py-2 rounded-r-md hover:bg-brand-primary/90 disabled:bg-slate-400" disabled={isLoading}>
+                <button type="submit" className="bg-brand-primary text-white px-4 py-2 rounded-r-md hover:bg-brand-primary/90 disabled:bg-slate-400" disabled={isLoading} aria-label="Enviar mensaje">
                   <SendIcon className="w-5 h-5" />
                 </button>
               </div>
