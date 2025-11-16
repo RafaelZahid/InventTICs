@@ -22,7 +22,7 @@ const getChatInstance = (products: Product[]): Chat => {
 
   currentProductsJSON = newProductsJSON;
 
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
 
   // Proporciona el estado actual del inventario como contexto al modelo.
   const inventoryContext = `
