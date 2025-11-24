@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { ChatMessage, Product } from '../types';
 import { sendMessageToGemini } from '../services/geminiService';
@@ -57,31 +58,33 @@ const Chatbot: React.FC<ChatbotProps> = ({ products }) => {
     <>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 bg-brand-primary text-white w-16 h-16 rounded-full shadow-lg flex items-center justify-center hover:bg-brand-primary/90 transition-transform duration-300 transform hover:scale-110 z-50"
+        className="fixed bottom-6 right-6 bg-brand-primary text-white w-14 h-14 md:w-16 md:h-16 rounded-full shadow-lg flex items-center justify-center hover:bg-brand-primary/90 transition-transform duration-300 transform hover:scale-110 z-[60]"
         aria-label={isOpen ? "Cerrar chat de ayuda" : "Abrir chat de ayuda"}
         title="Habla con NutriBot, el asistente de IA"
       >
-        {isOpen ? <CloseIcon className="w-8 h-8"/> : <ChatIcon className="w-8 h-8" />}
+        {isOpen ? <CloseIcon className="w-6 h-6 md:w-8 md:h-8"/> : <ChatIcon className="w-6 h-6 md:w-8 md:h-8" />}
       </button>
 
       {isOpen && (
-        <div className="fixed bottom-24 right-6 w-96 h-[32rem] bg-white rounded-lg shadow-2xl flex flex-col z-50 transition-opacity duration-300 animate-fade-in-up">
-          <header className="bg-brand-dark text-white p-4 rounded-t-lg">
-            <h3 className="font-bold text-lg">Asistente NutriBot</h3>
-            <p className="text-xs text-slate-300">Responde preguntas sobre el inventario actual.</p>
+        <div className="fixed bottom-24 right-4 left-4 md:left-auto md:right-6 md:w-96 h-[60vh] md:h-[32rem] bg-white rounded-lg shadow-2xl flex flex-col z-[60] transition-opacity duration-300 animate-fade-in-up border border-slate-200">
+          <header className="bg-brand-dark text-white p-4 rounded-t-lg flex justify-between items-center">
+            <div>
+                <h3 className="font-bold text-lg">Asistente NutriBot</h3>
+                <p className="text-xs text-slate-300">Responde preguntas sobre el inventario actual.</p>
+            </div>
           </header>
 
           <div className="flex-grow p-4 overflow-y-auto bg-slate-50">
             {messages.map((msg, index) => (
               <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} mb-3`}>
-                <div className={`max-w-xs px-4 py-2 rounded-2xl ${msg.role === 'user' ? 'bg-brand-secondary text-white rounded-br-none' : 'bg-slate-200 text-slate-800 rounded-bl-none'}`}>
+                <div className={`max-w-[85%] px-4 py-2 rounded-2xl ${msg.role === 'user' ? 'bg-brand-secondary text-white rounded-br-none' : 'bg-slate-200 text-slate-800 rounded-bl-none'}`}>
                   <p className="text-sm">{msg.text}</p>
                 </div>
               </div>
             ))}
             {isLoading && (
               <div className="flex justify-start mb-3">
-                <div className="max-w-xs px-4 py-2 rounded-2xl bg-slate-200 text-slate-800 rounded-bl-none">
+                <div className="max-w-[85%] px-4 py-2 rounded-2xl bg-slate-200 text-slate-800 rounded-bl-none">
                     <div className="flex items-center space-x-2">
                         <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
                         <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
@@ -94,13 +97,13 @@ const Chatbot: React.FC<ChatbotProps> = ({ products }) => {
           </div>
 
           <div className="p-2 border-t bg-slate-50">
-             <p className="text-xs text-slate-500 mb-2 px-2">Sugerencias:</p>
-            <div className="flex space-x-2 px-2">
+             <p className="text-xs text-slate-500 mb-2 px-2 hidden md:block">Sugerencias:</p>
+            <div className="flex space-x-2 px-2 overflow-x-auto pb-2 md:pb-0 hide-scrollbar">
                 {suggestionButtons.map(text => (
                     <button 
                         key={text}
                         onClick={() => handleSend(text)}
-                        className="text-xs border border-brand-secondary text-brand-secondary rounded-full px-3 py-1 hover:bg-brand-secondary/10"
+                        className="text-xs border border-brand-secondary text-brand-secondary rounded-full px-3 py-1 hover:bg-brand-secondary/10 whitespace-nowrap flex-shrink-0"
                     >
                        {text}
                     </button>
@@ -140,6 +143,14 @@ const Chatbot: React.FC<ChatbotProps> = ({ products }) => {
         }
         .animate-fade-in-up {
           animation: fade-in-up 0.3s ease-out;
+        }
+        /* Ocultar scrollbar en sugerencias móviles */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
       `}</style>
     </>

@@ -1,15 +1,16 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { User, Product } from '../types';
-import { UserIcon, BellIcon, ExclamationTriangleIcon } from './icons';
+import { UserIcon, BellIcon, ExclamationTriangleIcon, MenuIcon } from './icons';
 
 interface HeaderProps {
   title: string;
   currentUser: User;
   lowStockProducts: Product[];
+  onMenuClick: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ title, currentUser, lowStockProducts }) => {
+const Header: React.FC<HeaderProps> = ({ title, currentUser, lowStockProducts, onMenuClick }) => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const notificationsRef = useRef<HTMLDivElement>(null);
 
@@ -30,23 +31,36 @@ const Header: React.FC<HeaderProps> = ({ title, currentUser, lowStockProducts })
   return (
     <header className="bg-white shadow-sm p-4 sticky top-0 z-20">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-slate-800 capitalize">{title.replace('-', ' ')}</h2>
+        <div className="flex items-center">
+            <button 
+                onClick={onMenuClick}
+                className="mr-3 p-2 rounded-md text-slate-500 hover:bg-slate-100 md:hidden focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                aria-label="Abrir menú"
+            >
+                <MenuIcon className="w-6 h-6" />
+            </button>
+            <h2 className="text-xl md:text-2xl font-bold text-slate-800 capitalize truncate max-w-[200px] md:max-w-none">
+                {title === 'image-generator' ? 'Estudio IA' : title.replace('-', ' ')}
+            </h2>
+        </div>
+        
         <div className="flex items-center">
           <div className="relative" ref={notificationsRef}>
             <button 
               onClick={() => setIsNotificationsOpen(prev => !prev)}
-              className="p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors duration-200" 
+              className="p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors duration-200 relative" 
               title="Ver notificaciones de stock bajo"
             >
               <BellIcon className="w-6 h-6 text-slate-600" />
+              {hasNotifications && (
+                <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 rounded-full border-2 border-white text-white text-xs flex items-center justify-center font-bold">
+                  {lowStockProducts.length}
+                </span>
+              )}
             </button>
-            {hasNotifications && (
-              <span className="absolute top-0 right-0 h-5 w-5 bg-red-500 rounded-full border-2 border-white text-white text-xs flex items-center justify-center font-bold">
-                {lowStockProducts.length}
-              </span>
-            )}
+            
             {isNotificationsOpen && (
-              <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-slate-200 animate-fade-in-down origin-top-right z-30">
+              <div className="absolute right-0 mt-2 w-72 md:w-80 bg-white rounded-lg shadow-xl border border-slate-200 animate-fade-in-down origin-top-right z-30">
                 <div className="p-3 border-b border-slate-200">
                   <h4 className="font-semibold text-sm text-slate-800">Notificaciones de Stock Bajo</h4>
                 </div>
@@ -74,11 +88,11 @@ const Header: React.FC<HeaderProps> = ({ title, currentUser, lowStockProducts })
               </div>
             )}
           </div>
-          <div className="ml-6 flex items-center" title={`Usuario: ${currentUser.name} (${currentUser.role})`}>
+          <div className="ml-4 flex items-center" title={`Usuario: ${currentUser.name} (${currentUser.role})`}>
             <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center ring-2 ring-white">
               <UserIcon className="w-6 h-6 text-slate-500" />
             </div>
-            <div className="ml-3">
+            <div className="hidden md:block ml-3">
               <p className="font-semibold text-sm">{currentUser.name}</p>
               <p className="text-xs text-slate-500 capitalize">{currentUser.role}</p>
             </div>

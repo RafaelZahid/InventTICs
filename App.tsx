@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
@@ -8,6 +9,7 @@ import Reports from './components/Reports';
 import Settings from './components/Settings';
 import Scanner from './components/Scanner';
 import Chatbot from './components/Chatbot';
+import ImageGenerator from './components/ImageGenerator';
 import Login from './components/Login';
 import Register from './components/Register';
 import RegisterMovementModal from './components/RegisterMovementModal';
@@ -23,6 +25,7 @@ const App: React.FC = () => {
   
   // --- ESTADO DE NAVEGACIÓN Y DATOS ---
   const [currentView, setCurrentView] = useState<View>('dashboard');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Nuevo estado para menú móvil
   const [products, setProducts] = useState<Product[]>([]);
   const [movements, setMovements] = useState<Movement[]>([]);
   const [lowStockThreshold, setLowStockThreshold] = useState<number>(50);
@@ -286,19 +289,16 @@ const App: React.FC = () => {
       case 'dashboard': return <Dashboard products={products} movements={movements} />;
       case 'products': return <Products products={products} movements={movements} onAddProduct={handleAddProduct} onEditProduct={handleEditProduct} onDeleteProduct={handleDeleteProduct} currentUser={currentUser!} lowStockThreshold={lowStockThreshold} />;
       case 'scanner': return <Scanner products={products} onOpenMovementModal={(productId) => setMovementModal({ isOpen: true, initialProductId: productId })} />;
+      case 'image-generator': return <ImageGenerator />;
       case 'movements': return <Movements movements={movements} onOpenMovementModal={() => setMovementModal({ isOpen: true })} />;
       case 'reports': return <Reports products={products} movements={movements} />;
-      case 'settings': return <Settings users={currentUser ? [currentUser] : []} lowStockThreshold={lowStockThreshold} onThresholdChange={handleThresholdChange} />;
+      case 'settings': return <Settings users={[currentUser!]} lowStockThreshold={lowStockThreshold} onThresholdChange={handleThresholdChange} />;
       default: return <Dashboard products={products} movements={movements} />;
     }
   };
 
   if (authStatus === 'loading') {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-100">
-        <div className="w-16 h-16 border-4 border-brand-primary border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
+    return <div className="min-h-screen flex items-center justify-center bg-slate-50"><div className="w-16 h-16 border-4 border-brand-primary border-t-transparent rounded-full animate-spin"></div></div>;
   }
 
   if (authStatus === 'login') {
@@ -309,40 +309,37 @@ const App: React.FC = () => {
     return <Register onRegister={handleRegister} onNavigateToLogin={() => setAuthStatus('login')} />;
   }
 
-  if (!currentUser) {
-    return <Login onLogin={handleLogin} onNavigateToRegister={() => setAuthStatus('register')} onPasswordReset={handlePasswordReset} />;
-  }
-
-  const lowStockProducts = products.filter(p => p.quantity > 0 && p.quantity < lowStockThreshold);
-
   return (
-    <div className="flex bg-slate-100 min-h-screen">
-      <Sidebar
-        currentView={currentView}
-        onViewChange={setCurrentView}
-        onLogout={handleLogout}
-        currentUser={currentUser}
-      />
-      <div className="flex-1 ml-64 flex flex-col h-screen overflow-hidden">
-        <Header 
-          title={currentView === 'scanner' ? 'Escanear QR' : currentView} 
-          currentUser={currentUser} 
-          lowStockProducts={lowStockProducts} 
-        />
-        <main className="flex-1 overflow-auto">
-          {renderView()}
-        </main>
-      </div>
-      <Chatbot products={products} />
-      {movementModal.isOpen && (
-          <RegisterMovementModal
-            products={products}
-            currentUser={currentUser}
-            initialProductId={movementModal.initialProductId}
-            onClose={() => setMovementModal({ isOpen: false })}
-            onRegister={handleRegisterMovement}
+    <div className="flex bg-slate-50 min-h-screen font-sans text-slate-900">
+       <Sidebar 
+         currentView={currentView} 
+         onViewChange={setCurrentView} 
+         onLogout={handleLogout} 
+         currentUser={currentUser!} 
+         isOpen={isSidebarOpen}
+         onClose={() => setIsSidebarOpen(false)}
+       />
+       <div className="flex-1 flex flex-col md:ml-64 transition-all duration-300">
+          <Header 
+            title={currentView} 
+            currentUser={currentUser!} 
+            lowStockProducts={products.filter(p => p.quantity < lowStockThreshold)} 
+            onMenuClick={() => setIsSidebarOpen(true)}
           />
-      )}
+          <main className="flex-1 overflow-y-auto">
+             {renderView()}
+          </main>
+       </div>
+       <Chatbot products={products} />
+       {movementModal.isOpen && (
+         <RegisterMovementModal
+           products={products}
+           currentUser={currentUser!}
+           initialProductId={movementModal.initialProductId}
+           onClose={() => setMovementModal({ isOpen: false })}
+           onRegister={handleRegisterMovement}
+         />
+       )}
     </div>
   );
 };

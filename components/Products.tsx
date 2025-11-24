@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import QRCode from 'qrcode';
 import { Product, User, Movement } from '../types';
@@ -51,7 +52,7 @@ const QrCodeModal: React.FC<{ product: Product; onClose: () => void; }> = ({ pro
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fade-in" aria-modal="true">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-sm p-6 text-center relative">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-sm p-6 text-center relative mx-4">
                  <button onClick={onClose} className="absolute top-4 right-4 text-slate-500 hover:text-slate-800" aria-label="Cerrar modal">
                    <CloseIcon className="h-6 w-6" />
                 </button>
@@ -114,7 +115,7 @@ const CameraCaptureModal: React.FC<{
 
     return (
          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[60] animate-fade-in" aria-modal="true">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 text-center relative">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 text-center relative mx-4">
                  <button onClick={onClose} className="absolute top-4 right-4 text-slate-500 hover:text-slate-800" aria-label="Cerrar cámara">
                    <CloseIcon className="h-6 w-6" />
                 </button>
@@ -207,7 +208,7 @@ const ProductFormModal: React.FC<{
     return (
         <>
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fade-in" aria-modal="true">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 relative max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 relative max-h-[90vh] overflow-y-auto m-4">
                 <button onClick={onClose} className="absolute top-4 right-4 text-slate-500 hover:text-slate-800" aria-label="Cerrar modal">
                    <CloseIcon className="h-6 w-6" />
                 </button>
@@ -289,7 +290,7 @@ const DeleteConfirmationModal: React.FC<{
 }> = ({ product, onClose, onConfirm }) => {
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fade-in" aria-modal="true">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-sm p-6 text-center">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-sm p-6 text-center mx-4">
                 <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
                     <TrashIcon className="h-6 w-6 text-red-600" />
                 </div>
@@ -447,20 +448,20 @@ const Products: React.FC<ProductsProps> = ({ products, movements, onAddProduct, 
   const tableCols = baseCols + (columnVisibility.entryDate ? 1 : 0) + (columnVisibility.expiryDate ? 1 : 0);
 
   return (
-    <div className="p-6">
-       <div className="bg-white p-6 rounded-lg shadow">
+    <div className="p-4 md:p-6">
+       <div className="bg-white p-4 md:p-6 rounded-lg shadow">
         <div className="mb-4">
           <h3 className="font-bold text-lg">Gestión de Productos</h3>
           <p className="text-sm text-slate-500">Visualiza, busca y administra todos los productos en tu inventario.</p>
         </div>
-        <div className="flex flex-wrap gap-4 justify-between items-center mb-4">
-            <div className="flex items-center gap-4">
-                <div className="relative w-full max-w-md">
+        <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center mb-4">
+            <div className="flex flex-col sm:flex-row w-full md:w-auto items-start sm:items-center gap-4">
+                <div className="relative w-full sm:w-64 max-w-md">
                     <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Buscar por nombre, código o categoría..."
+                        placeholder="Buscar producto..."
                         className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-md focus:ring-brand-primary focus:border-brand-primary bg-white text-slate-900 placeholder:text-slate-400"
                     />
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -468,7 +469,7 @@ const Products: React.FC<ProductsProps> = ({ products, movements, onAddProduct, 
                     </div>
                 </div>
                 <div className="relative" ref={columnSelectorRef}>
-                    <button onClick={() => setIsColumnSelectorOpen(prev => !prev)} className="px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 flex items-center gap-2">
+                    <button onClick={() => setIsColumnSelectorOpen(prev => !prev)} className="px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 flex items-center gap-2 whitespace-nowrap">
                         Columnas <ChevronDownIcon className="w-4 h-4" />
                     </button>
                     {isColumnSelectorOpen && (
@@ -486,9 +487,9 @@ const Products: React.FC<ProductsProps> = ({ products, movements, onAddProduct, 
                 </div>
             </div>
             {currentUser.role === 'admin' && (
-                <button onClick={() => setModalState({ mode: 'add', product: null })} className="bg-brand-primary text-white px-4 py-2 rounded-md hover:bg-brand-primary/90 text-sm font-semibold flex items-center space-x-2 transition-transform duration-200 hover:scale-105" title="Añadir un nuevo producto al inventario">
+                <button onClick={() => setModalState({ mode: 'add', product: null })} className="w-full sm:w-auto bg-brand-primary text-white px-4 py-2 rounded-md hover:bg-brand-primary/90 text-sm font-semibold flex items-center justify-center space-x-2 transition-transform duration-200 hover:scale-105" title="Añadir un nuevo producto al inventario">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-                <span>Agregar Producto</span>
+                <span>Agregar</span>
                 </button>
             )}
         </div>
@@ -498,7 +499,7 @@ const Products: React.FC<ProductsProps> = ({ products, movements, onAddProduct, 
           </div>
         )}
          <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left text-slate-500">
+          <table className="w-full text-sm text-left text-slate-500 min-w-[800px] md:min-w-0">
             <thead className="text-xs text-slate-700 uppercase bg-slate-50">
               <tr>
                 <th scope="col" className="px-6 py-3">Producto</th>
@@ -536,11 +537,11 @@ const Products: React.FC<ProductsProps> = ({ products, movements, onAddProduct, 
                           </div>
                         </td>
                         <td className="px-6 py-4">{product.code}</td>
-                        <td className="px-6 py-4 font-semibold">{product.quantity} <span className="text-xs text-slate-500 font-normal">{product.unit || 'unidades'}</span></td>
+                        <td className="px-6 py-4 font-semibold whitespace-nowrap">{product.quantity} <span className="text-xs text-slate-500 font-normal">{product.unit || 'unidades'}</span></td>
                         <td className="px-6 py-4">${product.price.toFixed(2)}</td>
-                        {columnVisibility.entryDate && <td className="px-6 py-4">{product.entryDate}</td>}
-                        {columnVisibility.expiryDate && <td className="px-6 py-4">{product.expiryDate}</td>}
-                        <td className="px-6 py-4">
+                        {columnVisibility.entryDate && <td className="px-6 py-4 whitespace-nowrap">{product.entryDate}</td>}
+                        {columnVisibility.expiryDate && <td className="px-6 py-4 whitespace-nowrap">{product.expiryDate}</td>}
+                        <td className="px-6 py-4 whitespace-nowrap">
                            <div className="flex items-center space-x-2">
                               <span className={`capitalize px-2 py-1 rounded text-xs font-semibold ${status.className}`}>
                                 {status.text}
@@ -553,7 +554,7 @@ const Products: React.FC<ProductsProps> = ({ products, movements, onAddProduct, 
                            </div>
                         </td>
                         {currentUser.role === 'admin' && (
-                          <td className="px-6 py-4 text-right space-x-3">
+                          <td className="px-6 py-4 text-right space-x-2 whitespace-nowrap">
                               <button onClick={() => handleShare(product)} title="Compartir producto" className="text-slate-400 hover:text-blue-500">
                                 <ShareIcon className="w-5 h-5" />
                               </button>
@@ -622,7 +623,7 @@ const Products: React.FC<ProductsProps> = ({ products, movements, onAddProduct, 
           </table>
         </div>
         {totalPages > 1 && (
-          <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-200">
+          <div className="flex flex-col md:flex-row justify-between items-center mt-4 pt-4 border-t border-slate-200 gap-4">
             <span className="text-sm text-slate-600">Mostrando {startIndex + 1} a {Math.min(startIndex + ITEMS_PER_PAGE, filteredProducts.length)} de {filteredProducts.length} productos</span>
             <div className="flex items-center space-x-2">
               <button onClick={goToPreviousPage} disabled={currentPage === 1} className="px-3 py-1 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed">Anterior</button>
