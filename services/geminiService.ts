@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, Chat, Type } from "@google/genai";
 import { Product, Movement, AnalysisResult } from '../types';
 
@@ -22,7 +23,7 @@ const getChatInstance = (products: Product[]): Chat => {
 
   currentProductsJSON = newProductsJSON;
 
-  const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
   // Proporciona el estado actual del inventario como contexto al modelo.
   const inventoryContext = `
@@ -155,4 +156,73 @@ export const getInventoryAnalysis = async (products: Product[], movements: Movem
     // Lanza un error para ser manejado por el componente que llama.
     throw new Error("No se pudo obtener el análisis del inventario.");
   }
+};
+
+/**
+ * Genera una imagen simulada de un escaneo de producto específico.
+ * @param {string} productName - El nombre del producto que se simulará escanear.
+ * @returns {Promise<string | null>} La URL de la imagen en base64 o null si falla.
+ */
+export const generateSimulatedScanImage = async (productName: string): Promise<string | null> => {
+  try {
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    
+    const prompt = `A realistic first-person point-of-view (POV) photo of a hand holding a package of "${productName}" in a supermarket aisle. The camera is closely focused on a QR code label printed on the packaging. The background shows blurred supermarket shelves. High quality, photorealistic, commercial style.`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash-image', // Usamos el modelo Flash Image
+      contents: {
+        parts: [{ text: prompt }],
+      },
+      config: {
+        imageConfig: {
+          aspectRatio: "16:9",
+        },
+      },
+    });
+
+    for (const part of response.candidates![0].content.parts) {
+      if (part.inlineData) {
+        return `data:image/png;base64,${part.inlineData.data}`;
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error("Error generating simulated image:", error);
+    return null;
+  }
+};
+
+/**
+ * Genera una imagen de producto específica basada en su nombre para la ficha de resultado.
+ * @param {string} productName - El nombre del producto.
+ * @returns {Promise<string | null>} La URL de la imagen en base64.
+ */
+export const generateProductImageByName = async (productName: string): Promise<string | null> => {
+    try {
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const prompt = `Una fotografía profesional de producto de ${productName}, aislada sobre fondo blanco de estudio, alta resolución, iluminación cinematográfica publicitaria, realista, estilo comercial.`;
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash-image',
+            contents: {
+                parts: [{ text: prompt }],
+            },
+            config: {
+                imageConfig: {
+                    aspectRatio: "1:1",
+                },
+            },
+        });
+
+        for (const part of response.candidates![0].content.parts) {
+            if (part.inlineData) {
+                return `data:image/png;base64,${part.inlineData.data}`;
+            }
+        }
+        return null;
+    } catch (error) {
+        console.error("Error generating product image:", error);
+        return null;
+    }
 };
