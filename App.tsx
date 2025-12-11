@@ -9,7 +9,6 @@ import Reports from './components/Reports';
 import Settings from './components/Settings';
 import Scanner from './components/Scanner';
 import Chatbot from './components/Chatbot';
-import ImageGenerator from './components/ImageGenerator';
 import Login from './components/Login';
 import Register from './components/Register';
 import RegisterMovementModal from './components/RegisterMovementModal';
@@ -289,7 +288,6 @@ const App: React.FC = () => {
       case 'dashboard': return <Dashboard products={products} movements={movements} />;
       case 'products': return <Products products={products} movements={movements} onAddProduct={handleAddProduct} onEditProduct={handleEditProduct} onDeleteProduct={handleDeleteProduct} currentUser={currentUser!} lowStockThreshold={lowStockThreshold} />;
       case 'scanner': return <Scanner products={products} onOpenMovementModal={(productId) => setMovementModal({ isOpen: true, initialProductId: productId })} />;
-      case 'image-generator': return <ImageGenerator />;
       case 'movements': return <Movements movements={movements} onOpenMovementModal={() => setMovementModal({ isOpen: true })} />;
       case 'reports': return <Reports products={products} movements={movements} />;
       case 'settings': return <Settings users={[currentUser!]} currentUser={currentUser!} lowStockThreshold={lowStockThreshold} onThresholdChange={handleThresholdChange} />;
