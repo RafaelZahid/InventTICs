@@ -7,28 +7,41 @@ let chat: Chat | null = null;
 // Almacena el estado de los productos con el que se inicializó el chat para detectar cambios.
 let currentProductsJSON: string = '';
 
-// Helper para obtener la API Key.
-// Prioriza process.env.API_KEY según las reglas, pero mantiene compatibilidad con Vite client-side.
+// Helper para obtener la API Key con múltiples fallbacks
 const getApiKey = (): string => {
-  // 1. Prioridad: Entorno estándar (Node/Server o DefinePlugin)
+  let key = '';
+
+  // 1. Entorno Node/Server (Prioridad estándar)
   if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
-    return process.env.API_KEY;
+    key = process.env.API_KEY;
   }
 
-  // 2. Fallback: Vite (Client-side)
-  try {
-    // @ts-ignore
-    if (import.meta && import.meta.env) {
-        // @ts-ignore
-        if (import.meta.env.VITE_API_KEY) return import.meta.env.VITE_API_KEY;
-        // @ts-ignore
-        if (import.meta.env.API_KEY) return import.meta.env.API_KEY;
+  // 2. Entorno Vite Client-side (Vercel)
+  if (!key) {
+    try {
+      // @ts-ignore
+      if (import.meta && import.meta.env) {
+          // @ts-ignore
+          if (import.meta.env.VITE_API_KEY) key = import.meta.env.VITE_API_KEY;
+          // @ts-ignore
+          else if (import.meta.env.API_KEY) key = import.meta.env.API_KEY;
+          // @ts-ignore - Fallback para posible error de dedo mencionado (APY)
+          else if (import.meta.env.VITE_APY_KEY) key = import.meta.env.VITE_APY_KEY;
+      }
+    } catch (e) {
+      console.warn("Error accediendo a import.meta.env", e);
     }
-  } catch (e) {
-    console.warn("No se pudo acceder a import.meta.env");
   }
 
-  return '';
+  // Debugging para Vercel (Solo visible en consola F12)
+  if (!key) {
+    console.error("CRÍTICO: No se encontró ninguna API Key. Verifica VITE_API_KEY en Vercel y haz REDEPLOY.");
+  } else {
+    // Log seguro para verificar que cargó (muestra solo los últimos 4 caracteres)
+    console.log(`API Key cargada correctamente: ...${key.slice(-4)}`);
+  }
+
+  return key;
 };
 
 /**
@@ -44,7 +57,7 @@ const getChatInstance = (products: Product[]): Chat => {
 
   const apiKey = getApiKey();
   if (!apiKey) {
-      throw new Error("API Key no encontrada. Configura VITE_API_KEY en tu archivo .env");
+      throw new Error("Falta la API Key. Configura VITE_API_KEY en las variables de entorno.");
   }
 
   const ai = new GoogleGenAI({ apiKey });
@@ -90,14 +103,22 @@ export const sendMessageToGemini = async (message: string, products: Product[]):
     const chatInstance = getChatInstance(products);
     const response = await chatInstance.sendMessage({ message });
     return response.text;
-  } catch (error) {
-    console.error("Error sending message to Gemini:", error);
+  } catch (error: any) {
+    console.error("Error detallado Gemini:", error);
     
-    // CRÍTICO: Si hay un error, reseteamos el chat para forzar una nueva conexión la próxima vez.
+    // Resetear chat por si la sesión expiró o falló
     chat = null; 
     currentProductsJSON = '';
 
-    return "Lo siento, tuve un problema de conexión. Por favor, intenta preguntarme de nuevo.";
+    // Mensajes de error amigables según el tipo de fallo
+    if (error.message && error.message.includes("API Key")) {
+        return "Error de configuración: No detecto la API Key (VITE_API_KEY).";
+    }
+    if (error.status === 400 || error.toString().includes("400")) {
+        return "No pude entender esa solicitud. Intenta reformular la pregunta.";
+    }
+    
+    return "Tuve un problema de conexión con el servidor de IA. Intenta de nuevo en unos segundos.";
   }
 };
 
@@ -166,7 +187,6 @@ export const generateSimulatedScanImage = async (productName: string): Promise<s
 
     const ai = new GoogleGenAI({ apiKey });
     
-    // Prompt optimizado para velocidad y consistencia
     const prompt = `POV holding "${productName}" package in supermarket. Focus on QR code. Photorealistic.`;
 
     const response = await ai.models.generateContent({
