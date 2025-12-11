@@ -292,7 +292,7 @@ const App: React.FC = () => {
       case 'image-generator': return <ImageGenerator />;
       case 'movements': return <Movements movements={movements} onOpenMovementModal={() => setMovementModal({ isOpen: true })} />;
       case 'reports': return <Reports products={products} movements={movements} />;
-      case 'settings': return <Settings users={[currentUser!]} lowStockThreshold={lowStockThreshold} onThresholdChange={handleThresholdChange} />;
+      case 'settings': return <Settings users={[currentUser!]} currentUser={currentUser!} lowStockThreshold={lowStockThreshold} onThresholdChange={handleThresholdChange} />;
       default: return <Dashboard products={products} movements={movements} />;
     }
   };

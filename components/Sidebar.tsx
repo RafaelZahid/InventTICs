@@ -84,9 +84,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, onLogout, 
           <NavItem icon={<PhotoIcon className="w-5 h-5"/>} label="Estudio IA" isActive={currentView === 'image-generator'} onClick={() => handleViewChange('image-generator')} title="Generar imágenes de productos con IA" />
           <NavItem icon={<MovementIcon className="w-5 h-5"/>} label="Movimientos" isActive={currentView === 'movements'} onClick={() => handleViewChange('movements')} title="Consultar el historial de entradas y salidas" />
           <NavItem icon={<ReportIcon className="w-5 h-5"/>} label="Reportes" isActive={currentView === 'reports'} onClick={() => handleViewChange('reports')} title="Generar reportes en PDF del inventario" />
-          {currentUser.role === 'admin' && (
-            <NavItem icon={<SettingsIcon className="w-5 h-5"/>} label="Configuración" isActive={currentView === 'settings'} onClick={() => handleViewChange('settings')} title="Ajustar la configuración del sistema" />
-          )}
+          <NavItem icon={<SettingsIcon className="w-5 h-5"/>} label="Configuración" isActive={currentView === 'settings'} onClick={() => handleViewChange('settings')} title="Ajustar la configuración del sistema" />
         </nav>
         <div className="mt-auto pt-4 border-t border-brand-primary/20">
            <NavItem icon={<LogoutIcon className="w-5 h-5"/>} label="Cerrar Sesión" isActive={false} onClick={() => setIsLogoutModalOpen(true)} title="Salir de tu cuenta" />
