@@ -84,8 +84,10 @@ const getChatInstance = (products: Product[]): Chat => {
     ${inventoryContext}
   `;
 
+  // CAMBIO: Usamos 'gemini-flash-lite-latest' para evitar saturar la cuota del modelo estándar
+  // y obtener respuestas más rápidas.
   chat = ai.chats.create({
-    model: 'gemini-2.5-flash',
+    model: 'gemini-flash-lite-latest',
     config: {
       systemInstruction: systemInstruction,
     },
@@ -115,7 +117,7 @@ export const sendMessageToGemini = async (message: string, products: Product[]):
 
     // Manejo específico del error 429 (Quota Exceeded)
     if (error.status === 429 || errorStr.includes("429") || errorMsg.includes("quota") || errorMsg.includes("too many requests")) {
-        return "⏳ Estoy recibiendo muchas consultas en este momento (Límite de cuota gratuito). Por favor, espera unos 15 segundos e inténtalo de nuevo.";
+        return "⏳ Límite de velocidad alcanzado. Espera unos segundos...";
     }
 
     // Mensajes de error amigables según el tipo de fallo
@@ -144,8 +146,9 @@ export const getInventoryAnalysis = async (products: Product[], movements: Movem
     const simpleProducts = products.map(p => ({ n: p.name, q: p.quantity }));
     const simpleMovements = movements.slice(0, 50).map(m => ({ n: m.productName, t: m.type, q: m.quantity }));
 
+    // CAMBIO: Usamos 'gemini-flash-lite-latest' para el análisis también.
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-flash-lite-latest",
       contents: `Analiza: Prod: ${JSON.stringify(simpleProducts)}, Movs: ${JSON.stringify(simpleMovements)}. Devuelve JSON con highDemand y reorder (productName, reason max 10 words).`,
       config: {
         responseMimeType: "application/json",
@@ -201,6 +204,7 @@ export const generateSimulatedScanImage = async (productName: string): Promise<s
     
     const prompt = `POV holding "${productName}" package in supermarket. Focus on QR code. Photorealistic.`;
 
+    // Las imágenes deben seguir usando un modelo de imagen específico.
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-image',
       contents: { parts: [{ text: prompt }] },
