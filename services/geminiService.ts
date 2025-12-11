@@ -65,8 +65,6 @@ const getChatInstance = (products: Product[]): Chat => {
 
   const apiKey = getApiKey();
   if (!apiKey) {
-      // Retornamos un objeto dummy o lanzamos error controlado si es crítico, 
-      // pero aquí lanzamos error para que el componente maneje la UI de "Fallo de conexión"
       throw new Error("API Key no configurada.");
   }
 
@@ -119,7 +117,7 @@ export const sendMessageToGemini = async (message: string, products: Product[]):
     return response.text;
   } catch (error) {
     console.error("Error sending message to Gemini:", error);
-    return "Lo siento, no puedo procesar tu solicitud en este momento. Verifica la configuración de la API Key (VITE_API_KEY).";
+    return "Lo siento, ha ocurrido un error al procesar tu solicitud. Por favor verifica que la API Key esté configurada correctamente (VITE_API_KEY en Vercel).";
   }
 };
 
@@ -216,11 +214,7 @@ export const getInventoryAnalysis = async (products: Product[], movements: Movem
 export const generateSimulatedScanImage = async (productName: string): Promise<string | null> => {
   try {
     const apiKey = getApiKey();
-    // Si no hay API key, retornamos null inmediatamente para que la UI use el fallback
-    if (!apiKey) {
-        console.warn("API Key no encontrada para generar imagen simulada.");
-        return null;
-    }
+    if (!apiKey) return null;
 
     const ai = new GoogleGenAI({ apiKey });
     
@@ -240,8 +234,7 @@ export const generateSimulatedScanImage = async (productName: string): Promise<s
 
     for (const part of response.candidates![0].content.parts) {
       if (part.inlineData) {
-        // Usamos dinámicamente el mimeType retornado por la API
-        return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+        return `data:image/png;base64,${part.inlineData.data}`;
       }
     }
     return null;
@@ -278,7 +271,7 @@ export const generateProductImageByName = async (productName: string): Promise<s
 
         for (const part of response.candidates![0].content.parts) {
             if (part.inlineData) {
-                return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+                return `data:image/png;base64,${part.inlineData.data}`;
             }
         }
         return null;
@@ -315,7 +308,7 @@ export const generateImage = async (prompt: string, aspectRatio: string = "1:1")
 
         for (const part of response.candidates![0].content.parts) {
             if (part.inlineData) {
-                return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+                return `data:image/png;base64,${part.inlineData.data}`;
             }
         }
         return null;

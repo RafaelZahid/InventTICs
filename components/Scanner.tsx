@@ -26,9 +26,6 @@ const Scanner: React.FC<ScannerProps> = ({ products, onOpenMovementModal }) => {
     const [generatedProductImage, setGeneratedProductImage] = useState<string | null>(null);
     const [isGeneratingProductResult, setIsGeneratingProductResult] = useState(false);
 
-    const fallbackImage = "https://images.unsplash.com/photo-1604719312566-b7cb60936928?q=80&w=2070&auto=format&fit=crop";
-    const fallbackImageSecondary = "https://placehold.co/800x450/333333/ffffff?text=Simulacion+Inventario";
-
     // Resetear el estado de error de imagen cuando cambia el producto escaneado
     useEffect(() => {
         setImageError(false);
@@ -194,7 +191,7 @@ const Scanner: React.FC<ScannerProps> = ({ products, onOpenMovementModal }) => {
             setSimulationImage(generatedImage);
         } else {
             // Fallback si la IA falla (usar estática)
-            setSimulationImage(fallbackImage);
+            setSimulationImage("https://images.unsplash.com/photo-1604719312566-b7cb60936928?q=80&w=2070&auto=format&fit=crop");
         }
         
         setIsGeneratingImage(false);
@@ -324,27 +321,19 @@ const Scanner: React.FC<ScannerProps> = ({ products, onOpenMovementModal }) => {
                     </div>
                 )}
 
-                {/* Estado: Simulando (Imagen Generada por IA o Fallback) */}
+                {/* Estado: Simulando (Imagen Generada por IA) */}
                 {isSimulating && (
                     <div className="animate-fade-in">
                         <p className="mb-4 text-brand-primary font-medium animate-pulse flex items-center justify-center gap-2">
                             <svg className="animate-spin h-4 w-4 text-brand-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                             Escaneando superficie...
                         </p>
-                        {/* Cambiado bg-slate-900 a bg-gray-200 para que si la imagen tarda o falla, no se vea un "hoyo negro" */}
-                        <div className="relative w-full aspect-video bg-gray-200 rounded-lg overflow-hidden border-4 border-brand-primary shadow-xl group">
-                             {/* Imagen Generada por IA / Fallback */}
+                        <div className="relative w-full aspect-video bg-slate-900 rounded-lg overflow-hidden border-4 border-brand-primary shadow-xl group">
+                             {/* Imagen Generada por IA */}
                              <img 
-                                src={simulationImage || fallbackImage} 
+                                src={simulationImage || "https://images.unsplash.com/photo-1604719312566-b7cb60936928?q=80&w=2070&auto=format&fit=crop"} 
                                 alt="Simulación de escaneo" 
                                 className="w-full h-full object-cover"
-                                onError={(e) => {
-                                    // Robust fallback: Si la imagen principal falla, intenta la secundaria.
-                                    const target = e.currentTarget;
-                                    if (target.src !== fallbackImageSecondary) {
-                                        target.src = fallbackImageSecondary;
-                                    }
-                                }}
                              />
                              {/* Overlay oscuro para resaltar el láser */}
                              <div className="absolute inset-0 bg-black bg-opacity-10"></div>
