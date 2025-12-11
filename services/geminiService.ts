@@ -7,6 +7,14 @@ let chat: Chat | null = null;
 // Almacena el estado de los productos con el que se inicializó el chat para detectar cambios.
 let currentProductsJSON: string = '';
 
+// Helper para obtener la API Key de forma segura según las reglas del entorno
+const getApiKey = (): string => {
+  // Se asume que process.env.API_KEY está pre-configurado y disponible.
+  // El uso de un fallback vacío evita errores de 'undefined' si la variable no se ha inyectado aún,
+  // permitiendo que la aplicación cargue (aunque las llamadas a la API fallarán con un error más claro).
+  return process.env.API_KEY || '';
+};
+
 /**
  * Obtiene o crea una instancia del chat con el modelo de IA.
  * La instancia se reutiliza si los datos de los productos no han cambiado,
@@ -23,7 +31,7 @@ const getChatInstance = (products: Product[]): Chat => {
 
   currentProductsJSON = newProductsJSON;
 
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
   // Proporciona el estado actual del inventario como contexto al modelo.
   const inventoryContext = `
@@ -86,7 +94,7 @@ export const sendMessageToGemini = async (message: string, products: Product[]):
  */
 export const getInventoryAnalysis = async (products: Product[], movements: Movement[]): Promise<AnalysisResult> => {
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
     // Instrucción detallada para el modelo sobre cómo realizar el análisis y en qué formato responder.
     const systemInstruction = `
@@ -165,7 +173,7 @@ export const getInventoryAnalysis = async (products: Product[], movements: Movem
  */
 export const generateSimulatedScanImage = async (productName: string): Promise<string | null> => {
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey: getApiKey() });
     
     const prompt = `A realistic first-person point-of-view (POV) photo of a hand holding a package of "${productName}" in a supermarket aisle. The camera is closely focused on a QR code label printed on the packaging. The background shows blurred supermarket shelves. High quality, photorealistic, commercial style.`;
 
@@ -200,7 +208,7 @@ export const generateSimulatedScanImage = async (productName: string): Promise<s
  */
 export const generateProductImageByName = async (productName: string): Promise<string | null> => {
     try {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const ai = new GoogleGenAI({ apiKey: getApiKey() });
         const prompt = `Una fotografía profesional de producto de ${productName}, aislada sobre fondo blanco de estudio, alta resolución, iluminación cinematográfica publicitaria, realista, estilo comercial.`;
 
         const response = await ai.models.generateContent({
@@ -235,7 +243,7 @@ export const generateProductImageByName = async (productName: string): Promise<s
  */
 export const generateImage = async (prompt: string, aspectRatio: string = "1:1"): Promise<string | null> => {
     try {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const ai = new GoogleGenAI({ apiKey: getApiKey() });
         
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash-image',
