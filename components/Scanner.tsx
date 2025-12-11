@@ -26,8 +26,9 @@ const Scanner: React.FC<ScannerProps> = ({ products, onOpenMovementModal }) => {
     const [generatedProductImage, setGeneratedProductImage] = useState<string | null>(null);
     const [isGeneratingProductResult, setIsGeneratingProductResult] = useState(false);
 
-    const fallbackImage = "https://images.unsplash.com/photo-1604719312566-b7cb60936928?q=80&w=2070&auto=format&fit=crop";
-    const fallbackImageSecondary = "https://placehold.co/800x450/333333/ffffff?text=Simulacion+Inventario";
+    // Imágenes de respaldo realistas (Supermercado / Estanterías)
+    const fallbackImage = "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1974&auto=format&fit=crop";
+    const fallbackImageSecondary = "https://images.unsplash.com/photo-1578916171728-46686eac8d58?q=80&w=1974&auto=format&fit=crop";
 
     // Resetear el estado de error de imagen cuando cambia el producto escaneado
     useEffect(() => {
@@ -187,13 +188,16 @@ const Scanner: React.FC<ScannerProps> = ({ products, onOpenMovementModal }) => {
 
         // 2. Iniciar Generación de Imagen pasando el nombre del producto seleccionado
         setIsGeneratingImage(true);
-        const generatedImage = await generateSimulatedScanImage(randomProduct.name);
         
-        // 3. Establecer imagen y comenzar animación
-        if (generatedImage) {
-            setSimulationImage(generatedImage);
-        } else {
-            // Fallback si la IA falla (usar estática)
+        // Intentar generar imagen con IA, si falla (null), usar fallback silenciosamente
+        try {
+            const generatedImage = await generateSimulatedScanImage(randomProduct.name);
+            if (generatedImage) {
+                setSimulationImage(generatedImage);
+            } else {
+                setSimulationImage(fallbackImage);
+            }
+        } catch (e) {
             setSimulationImage(fallbackImage);
         }
         
@@ -331,15 +335,14 @@ const Scanner: React.FC<ScannerProps> = ({ products, onOpenMovementModal }) => {
                             <svg className="animate-spin h-4 w-4 text-brand-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                             Escaneando superficie...
                         </p>
-                        {/* Cambiado bg-slate-900 a bg-gray-200 para que si la imagen tarda o falla, no se vea un "hoyo negro" */}
-                        <div className="relative w-full aspect-video bg-gray-200 rounded-lg overflow-hidden border-4 border-brand-primary shadow-xl group">
-                             {/* Imagen Generada por IA / Fallback */}
+                        {/* Contenedor de imagen */}
+                        <div className="relative w-full aspect-video bg-gray-300 rounded-lg overflow-hidden border-4 border-brand-primary shadow-xl group">
                              <img 
                                 src={simulationImage || fallbackImage} 
                                 alt="Simulación de escaneo" 
                                 className="w-full h-full object-cover"
                                 onError={(e) => {
-                                    // Robust fallback: Si la imagen principal falla, intenta la secundaria.
+                                    // Si falla la imagen actual, usar la secundaria que es una foto real de almacén, NO texto.
                                     const target = e.currentTarget;
                                     if (target.src !== fallbackImageSecondary) {
                                         target.src = fallbackImageSecondary;
