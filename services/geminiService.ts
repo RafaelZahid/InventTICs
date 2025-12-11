@@ -110,11 +110,19 @@ export const sendMessageToGemini = async (message: string, products: Product[]):
     chat = null; 
     currentProductsJSON = '';
 
+    const errorStr = error.toString().toLowerCase();
+    const errorMsg = error.message ? error.message.toLowerCase() : "";
+
+    // Manejo específico del error 429 (Quota Exceeded)
+    if (error.status === 429 || errorStr.includes("429") || errorMsg.includes("quota") || errorMsg.includes("too many requests")) {
+        return "⏳ Estoy recibiendo muchas consultas en este momento (Límite de cuota gratuito). Por favor, espera unos 15 segundos e inténtalo de nuevo.";
+    }
+
     // Mensajes de error amigables según el tipo de fallo
-    if (error.message && error.message.includes("API Key")) {
+    if (errorMsg.includes("api key")) {
         return "Error de configuración: No detecto la API Key (VITE_API_KEY).";
     }
-    if (error.status === 400 || error.toString().includes("400")) {
+    if (error.status === 400 || errorStr.includes("400")) {
         return "No pude entender esa solicitud. Intenta reformular la pregunta.";
     }
     
@@ -171,8 +179,12 @@ export const getInventoryAnalysis = async (products: Product[], movements: Movem
 
     const jsonText = response.text.trim();
     return JSON.parse(jsonText);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error getting inventory analysis:", error);
+    // Si es error de cuota, lanzamos un mensaje específico que el componente pueda ignorar o mostrar suavemente
+    if (error.status === 429 || error.toString().includes('429')) {
+        throw new Error("Sistema saturado temporalmente.");
+    }
     throw new Error("Análisis no disponible.");
   }
 };
@@ -204,7 +216,8 @@ export const generateSimulatedScanImage = async (productName: string): Promise<s
     }
     return null;
   } catch (error) {
-    console.error("Error generating simulated image:", error);
+    // Fail silently on image generation errors (quota, etc) to fallback to static images
+    console.warn("Simulated image generation failed (likely quota):", error);
     return null;
   }
 };
@@ -235,6 +248,7 @@ export const generateProductImageByName = async (productName: string): Promise<s
         }
         return null;
     } catch (error) {
+        console.warn("Product image generation failed (likely quota):", error);
         return null;
     }
 };
@@ -264,6 +278,7 @@ export const generateImage = async (prompt: string, aspectRatio: string = "1:1")
         }
         return null;
     } catch (error) {
+        console.error("Custom image generation failed:", error);
         return null;
     }
 };
