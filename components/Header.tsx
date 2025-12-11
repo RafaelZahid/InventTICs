@@ -40,7 +40,7 @@ const Header: React.FC<HeaderProps> = ({ title, currentUser, lowStockProducts, o
                 <MenuIcon className="w-6 h-6" />
             </button>
             <h2 className="text-xl md:text-2xl font-bold text-slate-800 capitalize truncate max-w-[200px] md:max-w-none">
-                {title.replace('-', ' ')}
+                {title === 'image-generator' ? 'Estudio IA' : title.replace('-', ' ')}
             </h2>
         </div>
         

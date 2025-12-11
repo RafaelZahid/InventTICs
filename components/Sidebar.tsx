@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { View, User } from '../types';
-import { DashboardIcon, ProductIcon, MovementIcon, ReportIcon, SettingsIcon, LogoutIcon, LogoIcon, QrCodeIcon, CloseIcon } from './icons';
+import { DashboardIcon, ProductIcon, MovementIcon, ReportIcon, SettingsIcon, LogoutIcon, LogoIcon, QrCodeIcon, PhotoIcon, CloseIcon } from './icons';
 
 interface SidebarProps {
   currentView: View;
@@ -81,6 +81,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, onLogout, 
           <NavItem icon={<DashboardIcon className="w-5 h-5"/>} label="Panel de Control" isActive={currentView === 'dashboard'} onClick={() => handleViewChange('dashboard')} title="Ver el resumen general del inventario" />
           <NavItem icon={<ProductIcon className="w-5 h-5"/>} label="Productos" isActive={currentView === 'products'} onClick={() => handleViewChange('products')} title="Gestionar la lista de productos" />
           <NavItem icon={<QrCodeIcon className="w-5 h-5"/>} label="Escanear QR" isActive={currentView === 'scanner'} onClick={() => handleViewChange('scanner')} title="Escanear un producto usando la cámara" />
+          <NavItem icon={<PhotoIcon className="w-5 h-5"/>} label="Estudio IA" isActive={currentView === 'image-generator'} onClick={() => handleViewChange('image-generator')} title="Generar imágenes de productos con IA" />
           <NavItem icon={<MovementIcon className="w-5 h-5"/>} label="Movimientos" isActive={currentView === 'movements'} onClick={() => handleViewChange('movements')} title="Consultar el historial de entradas y salidas" />
           <NavItem icon={<ReportIcon className="w-5 h-5"/>} label="Reportes" isActive={currentView === 'reports'} onClick={() => handleViewChange('reports')} title="Generar reportes en PDF del inventario" />
           <NavItem icon={<SettingsIcon className="w-5 h-5"/>} label="Configuración" isActive={currentView === 'settings'} onClick={() => handleViewChange('settings')} title="Ajustar la configuración del sistema" />

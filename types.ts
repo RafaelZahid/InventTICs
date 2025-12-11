@@ -47,7 +47,7 @@ export interface User {
 /**
  * Define las vistas o pantallas principales de la aplicación.
  */
-export type View = 'dashboard' | 'products' | 'movements' | 'reports' | 'settings' | 'scanner';
+export type View = 'dashboard' | 'products' | 'movements' | 'reports' | 'settings' | 'scanner' | 'image-generator';
 
 /**
  * Representa un mensaje dentro de la conversación del chatbot.
